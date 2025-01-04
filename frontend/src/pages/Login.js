@@ -1,53 +1,62 @@
-// src/pages/Login.js
 import React, { useState } from "react";
+import { loginUser } from "../services/authService";
 import { useNavigate } from "react-router-dom";
-import FormInput from "../components/FormInput";
 
 const Login = () => {
-  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Add login logic here
-    alert("Login successful!");
+    setError("");  // Reset error state
+    setLoading(true);  // Set loading to true to show a loading state
+
+    const userData = { email, password };
+
+    try {
+      const data = await loginUser(userData); // Call backend login service
+      localStorage.setItem("token", data.token);  // Store token in local storage
+      navigate("/dashboard");  // Redirect to dashboard page
+    } catch (err) {
+      setError(err.error || "An error occurred during login"); // Display error if login fails
+    } finally {
+      setLoading(false);  // Set loading to false when the API call is finished
+    }
   };
 
   return (
-    <div className="login-page">
+    <div className="login-container">
       <h2>Login</h2>
+      {error && <div className="error">{error}</div>}
       <form onSubmit={handleSubmit}>
-        <FormInput
-          label="Email"
-          type="email"
-          name="email"
-          value={formData.email}
-          onChange={handleChange}
-          placeholder="Enter your email"
-        />
-        <FormInput
-          label="Password"
-          type="password"
-          name="password"
-          value={formData.password}
-          onChange={handleChange}
-          placeholder="Enter your password"
-        />
-        <button type="submit" className="btn btn-primary">
-          Login
-        </button>
-        <button
-          type="button"
-          className="btn btn-secondary"
-          onClick={() => navigate("/signup")}
-        >
-          Register
+        <div className="form-group">
+          <label>Email:</label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label>Password:</label>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </div>
+        <button type="submit" disabled={loading}>
+          {loading ? "Logging in..." : "Login"}
         </button>
       </form>
+      <p>
+        Don't have an account? <a href="/signup">Sign Up</a>
+      </p>
     </div>
   );
 };

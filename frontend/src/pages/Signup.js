@@ -1,78 +1,70 @@
-// src/pages/Signup.js
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import FormInput from "../components/FormInput";
 import { registerUser } from "../services/authService";
+import { useNavigate } from "react-router-dom";
 
 const Signup = () => {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    role: "Staff", // Default role
-  });
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [role, setRole] = useState("staff");  // Default to 'staff'
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");  // Reset error state
+    setLoading(true);  // Show loading state
+
+    const userData = { email, password, role };
+
     try {
-      await registerUser(formData);
-      alert("Registration successful!");
-      navigate("/login");
+      await registerUser(userData); // Call backend register service
+      navigate("/login");  // Redirect to login after successful signup
     } catch (err) {
-      alert("Error during registration: " + err.message);
+      setError(err.error || "An error occurred during registration"); // Show error if signup fails
+    } finally {
+      setLoading(false);  // Disable loading state
     }
   };
 
   return (
-    <div className="signup-page">
+    <div className="signup-container">
       <h2>Sign Up</h2>
+      {error && <div className="error">{error}</div>}
       <form onSubmit={handleSubmit}>
-        <FormInput
-          label="Name"
-          type="text"
-          name="name"
-          value={formData.name}
-          onChange={handleChange}
-          placeholder="Enter your name"
-        />
-        <FormInput
-          label="Email"
-          type="email"
-          name="email"
-          value={formData.email}
-          onChange={handleChange}
-          placeholder="Enter your email"
-        />
-        <FormInput
-          label="Password"
-          type="password"
-          name="password"
-          value={formData.password}
-          onChange={handleChange}
-          placeholder="Enter your password"
-        />
         <div className="form-group">
-          <label>Role</label>
-          <select
-            name="role"
-            value={formData.role}
-            onChange={handleChange}
-            className="form-control"
-          >
-            <option value="Admin">Admin</option>
-            <option value="Manager">Manager</option>
-            <option value="Staff">Staff</option>
+          <label>Email:</label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label>Password:</label>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label>Role:</label>
+          <select value={role} onChange={(e) => setRole(e.target.value)} required>
+            <option value="staff">Staff</option>
+            <option value="manager">Manager</option>
+            <option value="admin">Admin</option>
           </select>
         </div>
-        <button type="submit" className="btn btn-primary">
-          Register
+        <button type="submit" disabled={loading}>
+          {loading ? "Signing up..." : "Sign Up"}
         </button>
       </form>
+      <p>
+        Already have an account? <a href="/login">Login</a>
+      </p>
     </div>
   );
 };
