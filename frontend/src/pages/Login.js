@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { loginUser } from "../services/authService";
+import { loginUser } from "../services/authService"; // Import loginUser from services
 import { useNavigate } from "react-router-dom";
 
 const Login = () => {
@@ -15,11 +15,10 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const data = await loginUser({ email, password });
-      localStorage.setItem("token", data.token);
-      navigate("/dashboard");
+      const { message, user } = await loginUser(email, password);  // Call loginUser from services
+      navigate(`/dashboard`);  // Redirect to dashboard after login
     } catch (err) {
-      setError(err.response?.data?.error || "An error occurred during login");
+      setError(err.message || "An error occurred during login");
     } finally {
       setLoading(false);
     }
@@ -53,7 +52,7 @@ const Login = () => {
         </button>
       </form>
       <p>
-        Don't have an account? <a href="/signup">Sign Up</a>
+        Don't have an account? <a href="/signup">Sign up</a>
       </p>
     </div>
   );

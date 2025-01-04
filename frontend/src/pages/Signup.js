@@ -3,32 +3,28 @@ import { registerUser } from "../services/authService";
 import { useNavigate } from "react-router-dom";
 
 const Signup = () => {
+  const [name, setName] = useState(""); // Add name field
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("staff");
+  const [role, setRole] = useState("staff");  
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(""); // Clear previous errors
-    setLoading(true); // Show loading state
+    setError("");
+    setLoading(true);
 
-    const userData = { email, password, role };
+    const userData = { name, email, password, role }; // Include name
 
     try {
-      // Make API call
-      const response = await registerUser(userData);
-      console.log("Signup Response:", response); // Debugging API response
-      navigate("/login"); // Redirect to login after successful signup
+      await registerUser(userData);  // Call registerUser from services
+      navigate("/login");  // Redirect to login after successful signup
     } catch (err) {
-      console.error("Signup Error:", err); // Log error for debugging
-      // Extract error message from the backend response
-      const errorMessage = err.response?.data?.error || "An unexpected error occurred during signup";
-      setError(errorMessage);
+      setError(err.message || "An error occurred during signup");
     } finally {
-      setLoading(false); // Reset loading state
+      setLoading(false);
     }
   };
 
@@ -37,6 +33,15 @@ const Signup = () => {
       <h2>Sign Up</h2>
       {error && <div className="error">{error}</div>}
       <form onSubmit={handleSubmit}>
+        <div className="form-group">
+          <label>Name:</label> 
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
+        </div>
         <div className="form-group">
           <label>Email:</label>
           <input
@@ -57,7 +62,7 @@ const Signup = () => {
         </div>
         <div className="form-group">
           <label>Role:</label>
-          <select value={role} onChange={(e) => setRole(e.target.value)}>
+          <select value={role} onChange={(e) => setRole(e.target.value)} required>
             <option value="staff">Staff</option>
             <option value="manager">Manager</option>
             <option value="admin">Admin</option>
