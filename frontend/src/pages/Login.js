@@ -11,19 +11,17 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");  // Reset error state
-    setLoading(true);  // Set loading to true to show a loading state
-
-    const userData = { email, password };
+    setError("");
+    setLoading(true);
 
     try {
-      const data = await loginUser(userData); // Call backend login service
-      localStorage.setItem("token", data.token);  // Store token in local storage
-      navigate("/dashboard");  // Redirect to dashboard page
+      const data = await loginUser({ email, password });
+      localStorage.setItem("token", data.token);
+      navigate("/dashboard");
     } catch (err) {
-      setError(err.error || "An error occurred during login"); // Display error if login fails
+      setError(err.response?.data?.error || "An error occurred during login");
     } finally {
-      setLoading(false);  // Set loading to false when the API call is finished
+      setLoading(false);
     }
   };
 
