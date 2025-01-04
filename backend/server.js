@@ -18,13 +18,13 @@ app.use(express.json()); // Parse incoming JSON requests
 
 // // Routes
 // app.use("/api/auth", require("./routes/authRoutes")); // Authentication routes
-// app.use("/api/products", require("./routes/productRoutes")); // Product management routes
+ app.use("/api/products", require("./routes/productRoutes")); // Product management routes
 
-// // Global error handler (optional)
-// app.use((err, req, res, next) => {
-//   console.error(err.stack);
-//   res.status(500).json({ message: "Server error" });
-// });
+// Global error handler (optional)
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ message: "Server error" });
+});
 
 // Start the server
 // Login
